@@ -1,3 +1,9 @@
+.fseventsd
+.metadata_never_index
+.Trashes
+boot_out.txt
+settings.toml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -14,7 +20,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
