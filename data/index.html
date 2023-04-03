@@ -1,20 +1,25 @@
-<!DOCTYPE HTML><html>
+<!DOCTYPE HTML>
+<html>
+
 <head>
-  <title>ESP Web Server</title>
-  <meta name='viewport' content='width=device-width, initial-scale=1'>
-  <link rel='icon' href='data:,'>
-  <link rel="stylesheet" type="text/css" href="style.css">
+    <title>ESP Web Server</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='icon' href='data:,'>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="c3.min.css">
 </head>
+
 <body>
-  <script src='script.js'></script>
-  <div class='topnav'>
-    <h1>ESP WebSocket Server</h1>
-  </div>
-  <div class='content'>
-    <div class='card'>
-      <div id='chart'></div>
+    <script src="d3.v5.min.js" charset="utf-8"></script>
+    <script src="c3.min.js"></script>
+    <script src='script.js'></script>
+    <div class='topnav'>
+        <h1>ESP WebSocket Server</h1>
     </div>
-  </div>
-  
+    <div class='content'>
+        <div id='charts' class='card'></div>
+    </div>
+
 </body>
+
 </html>

@@ -13,19 +13,19 @@
 // For SPI mode, we need a CS pin
 #define BNO08X_CS 10
 #define BNO08X_INT 9
-// For SPI mode, we also need a RESET 
-//#define BNO08X_RESET 5
+// For SPI mode, we also need a RESET
+// #define BNO08X_RESET 5
 // but not for I2C or UART
 #define BNO08X_RESET -1
 // #define FAST_MODE
 #ifdef FAST_MODE
-  // Top frequency is reported to be 1000Hz (but freq is somewhat variable)
-  sh2_SensorId_t reportType = SH2_GYRO_INTEGRATED_RV;
-  long reportIntervalUs = 2000;
+// Top frequency is reported to be 1000Hz (but freq is somewhat variable)
+sh2_SensorId_t reportType = SH2_GYRO_INTEGRATED_RV;
+long reportIntervalUs = 2000;
 #else
-  // Top frequency is about 250Hz but this report is more accurate
-  sh2_SensorId_t reportType = SH2_ARVR_STABILIZED_RV;
-  long reportIntervalUs = 5000;
+// Top frequency is about 250Hz but this report is more accurate
+sh2_SensorId_t reportType = SH2_ARVR_STABILIZED_RV;
+long reportIntervalUs = 5000;
 #endif
 
 // Incluedes and defines for Filesystem.ino
@@ -47,15 +47,20 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
-void setup(){
-  // Serial port for debugging purposes
-  Serial.begin(115200);
-  bno08x_setup();
-  filesystem_setup();
-  network_setup();
-  webserver_setup();
+void setup()
+{
+    // Serial port for debugging purposes
+    Serial.begin(115200);
+    bno08x_setup();
+    if (!filesystem_setup()) {
+        return;
+    }
+
+    network_setup();
+    webserver_setup();
 }
 
-void loop() {
-  webserver_loop();
+void loop()
+{
+    webserver_loop();
 }
