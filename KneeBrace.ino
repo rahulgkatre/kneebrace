@@ -28,6 +28,12 @@
   long reportIntervalUs = 5000;
 #endif
 
+// Incluedes and defines for Filesystem.ino
+#include <FS.h>
+#include <LittleFS.h>
+
+#define FORMAT_LITTLEFS_IF_FAILED false
+
 // Includes and defines for GaitAnalysis.ino
 // Add this when done @Srihari
 
@@ -45,6 +51,7 @@ void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
   bno08x_setup();
+  filesystem_setup();
   network_setup();
   webserver_setup();
 }
