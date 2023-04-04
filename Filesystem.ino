@@ -1,4 +1,4 @@
-bool filesystem_setup()
+bool fileSystemSetup()
 {
     if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED))
     {

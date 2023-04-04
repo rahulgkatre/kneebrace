@@ -51,16 +51,16 @@ void setup()
 {
     // Serial port for debugging purposes
     Serial.begin(115200);
-    bno08x_setup();
-    if (!filesystem_setup()) {
+    bno08XSetup();
+    if (!fileSystemSetup()) {
         return;
     }
 
-    network_setup();
-    webserver_setup();
+    networkSetup();
+    webServerSetup();
 }
 
-void loop()
-{
-    webserver_loop();
+void loop() {
+    webServerLoop();
+    bno08XLoop();
 }

@@ -1,5 +1,6 @@
 {
     "configuration": "CDCOnBoot=cdc,MSCOnBoot=default,DFUOnBoot=default,UploadMode=cdc,PSRAM=enabled,PartitionScheme=tinyuf2,CPUFreq=240,FlashMode=qio,FlashFreq=80,FlashSize=4M,UploadSpeed=921600,DebugLevel=none,EraseFlash=none",
     "board": "esp32:esp32:adafruit_feather_esp32s2",
-    "programmer": "esptool"
+    "programmer": "esptool",
+    "sketch": "KneeBrace.ino"
 }

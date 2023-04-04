@@ -2,7 +2,7 @@
 char *ssid = "RAHULXPS 6734";
 char *password = "K54@8m03";
 
-void network_setup(void)
+void networkSetup(void)
 {
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED)

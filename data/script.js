@@ -1,8 +1,8 @@
 var websocket;
 window.addEventListener('load', initWebSocket);
-let maxPointsDisplayed = 30;
-var data = {};
+let maxPointsDisplayed = 20;
 var charts = {};
+var counts = {};
 
 function initWebSocket() {
     console.log('Trying to open a WebSocket connection...');
@@ -22,31 +22,44 @@ function onMessage(event) {
     const message = JSON.parse(event.data);
     if (message.type == 'plot') {
         // Plot the data in realtime
-        for (let i = 0; i < message.labels.length; i++) {
-            label = message.labels[i];
+        for (let i = 0; i < message.series.length; i++) {
+            label = message.series[i].label;
             if (! (label in charts) ) {
                 const div = document.createElement("div");
                 div.id = label;
                 document.getElementById('charts').appendChild(div);
-                data[label] = [];
+                counts[label] = 1;
+                var columns = Object.entries(message.series[i].data);
                 charts[label] = c3.generate({
                     bindto: document.getElementById(label),
                     data: {
-                        columns: [[label]]
+                        columns: columns
+                    },
+                    axis: {
+                        x: {
+                            tick: {
+                                format: function(x) { return ''; }
+                            }
+                        }
                     }
                 });
-                console.log('Created chart for ' + label);
-            }
+            } else {              
+                // TODO: Fix this
+                counts[label]++;
+                var length;
+                if (counts[label] > maxPointsDisplayed) {
+                    length = 1;
+                } else {
+                    length = 0;                    
+                }
 
-            data[label].push(message.data[i]);
-            if (data[label].length > maxPointsDisplayed) {
-                data[label].shift();
-            }
-            
-            charts[label].flow({
-                columns: [[label].concat(data[label])],
-                duration: 100
-            }); 
+                var columns = Object.entries(message.series[i].data);
+                charts[label].flow({
+                    columns: columns,
+                    duration: 0,
+                    length: length,
+                });
+            }  
         }
     } else if (message.type == 'text') {
         // Access the DOM using the keys and set the inner HTML to the value

@@ -5,47 +5,35 @@ AsyncWebSocket ws("/ws");
 
 void getNewPlotData()
 {
+    String message;
     if (!mockBNO08X)
     {
-        if (bno08x.wasReset())
-        {
-            Serial.print("sensor was reset ");
-            setReports(reportType, reportIntervalUs);
-        }
-
-        if (bno08x.getSensorEvent(&sensorValue))
-        {
-            // in this demo only one report type will be received depending on FAST_MODE define (above)
-            switch (sensorValue.sensorId)
-            {
-            case SH2_ARVR_STABILIZED_RV:
-                quaternionToEulerRV(&sensorValue.un.arvrStabilizedRV, &ypr, true);
-            case SH2_GYRO_INTEGRATED_RV:
-                // faster (more noise?)
-                quaternionToEulerGI(&sensorValue.un.gyroIntegratedRV, &ypr, true);
-                break;
-            }
-            static long last = 0;
-            long now = micros();
-            // Serial.print(now - last);             Serial.print("\t");
-            last = now;
-            // Serial.print(sensorValue.status);     Serial.print("\t");  // This is accuracy in the range of 0 to 3
-            // Serial.print(ypr.yaw);                Serial.print("\t");
-            // Serial.print(ypr.pitch);              Serial.print("\t");
-            // Serial.println(ypr.roll);
-        }
-
-        ws.textAll("{\"type\":\"plot\",\"labels\":[\"yaw\",\"pitch\",\"roll\"],\"data\":[" + String(ypr.yaw) + "," + String(ypr.pitch) + "," + String(ypr.roll) + "]}");
+        String accelJson = getAccelJsonString();
+        String gyroJson = getGyroJsonString();
+        String magFieldJson = getMagFieldJsonString();
+        String eulerJson = getEulerJsonString();
+        message = "{\"type\":\"plot\",\"series\":[" + accelJson + "," + gyroJson + "," + magFieldJson + ","  + eulerJson + "]}";
     }
     else
     {
-        ws.textAll("{\"type\":\"plot\",\"labels\":[\"yaw\",\"pitch\",\"roll\"],\"data\":[" + String(random(-45, 45)) + "," + String(random(-45, 45)) + "," + String(random(-45, 45)) + "]}");
+        String mockJson = getMockJsonString();
+        message = "{\"type\":\"plot\",\"series\":" + mockJson + "}";
     }
+    ws.textAll(message);
 }
 
 void getNewTextData()
 {
-    ws.textAll("{\"type\":\"text\",\"data\":{\"test\":\"Hello, world!\"}}");
+    String message;
+    if (!mockBNO08X) {
+        String stepsJson = getStepsJsonString();
+        String stabilityJson = getStabilityJsonString();
+        String activityJson = getActivityJsonString();
+        message = "{\"type\":\"text\",\"series\":[" + stepsJson + "," + stabilityJson + "," + activityJson + "]}";
+    } else {
+        message = "{\"type\":\"text\",\"series\":[{\"label\":\"Test\",\"data\":\"Hello, world!\"}]}";
+    }
+    ws.textAll(message);
 }
 
 void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
@@ -92,7 +80,7 @@ String processor(const String &var)
     return String();
 }
 
-void webserver_setup()
+void webServerSetup()
 {
     ws.onEvent(onEvent);
     server.addHandler(&ws);
@@ -121,7 +109,7 @@ void webserver_setup()
     server.begin();
 }
 
-void webserver_loop()
+void webServerLoop()
 {
     ws.cleanupClients();
 }
