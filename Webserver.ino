@@ -95,9 +95,8 @@ void webServerSetup()
     server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request)
               { request->send(LittleFS, "/script.js", "text/javascript"); });
 
-    server.on("/chart.umd.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/chart.umd.min.js", "text/javascript"); });
-
+    server.on("/highcharts.js", HTTP_GET, [](AsyncWebServerRequest *request)
+              { request->send(LittleFS, "/highcharts.js", "text/javascript"); });
 
     // Start server
     server.begin();

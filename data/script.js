@@ -1,10 +1,9 @@
 var websocket;
 window.addEventListener('load', initWebSocket);
-const maxPointsDisplayed = 30;
-const d = new Date();
-var data = {};
+const maxPointsDisplayed = 40;
+const plotFrequency = 100;
+const plotPeriod = 1000 / plotFrequency;
 var charts = {};
-const labels = [...Array(maxPointsDisplayed).keys()];
 
 function initWebSocket() {
     console.log('Trying to open a WebSocket connection...');
@@ -27,56 +26,49 @@ function onMessage(event) {
         for (let i = 0; i < message.series.length; i++) {
             var label = message.series[i].label;
             if (! (label in charts) ) {
-                const canvas = document.createElement("canvas");
-                canvas.id = label;
-                document.getElementById('charts').appendChild(canvas);
-                var datasets = [];
+                const div = document.createElement("div");
+                div.id = label;
+                document.getElementById('charts').appendChild(div);
+                var series = [];
                 Object.entries(message.series[i].data).forEach(([k, v]) => {
-                    datasets.push({
-                        label: k,
-                        data: [v]
+                    series.push({
+                        name: k,
+                        showInLegend: true,
+                        data: [],
                     });
                 });
-                
-                charts[label] = new Chart(canvas, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: datasets
+                charts[label] = new Highcharts.Chart({
+                    chart: { renderTo: div },
+                    title: { text: label },
+                    series: series,
+                    plotOptions: {
+                        line: {
+                            animation: false,
+                            dataLabels: { enabled: false },
+                            marker: { enabled: false }
+                        }
                     },
-                    options: {
-                        reponsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                            },
-                            title: {
-                                display: true,
-                                text: label
-                            },
-                        },
-                    }
+                    xAxis: {
+                        type: 'datetime',
+                        dateTimeLabelFormats: { second: '%H:%M:%S'}
+                    },
+                    credits: { enabled: false }
                 });
-            } else {
-                for (let j = 0; j < charts[label].data.datasets.length; j++) {
-                    const key = charts[label].data.datasets[j].label;
-                    const dest = charts[label].data.datasets[j].data;
-                    dest.push(message.series[i].data[key]);
-                    if (dest.length > maxPointsDisplayed) {
-                        labels.push(labels[maxPointsDisplayed-1]+1);
-                        labels.shift();
-                        dest.shift();
-                    }
+            }
+            for (let j = 0; j < charts[label].series.length; j++) {
+                const key = charts[label].series[j].name;
+                if (charts[label].series[j].data.length > maxPointsDisplayed) {
+                    charts[label].series[j].addPoint([(new Date()).getTime(), message.series[i].data[key]], true, true);
+                } else {
+                    charts[label].series[j].addPoint([(new Date()).getTime(), message.series[i].data[key]], true, false);
                 }
-                
-                charts[label].update();
-            }  
+            }
         }
     } else if (message.type == 'text') {
         // Access the DOM using the keys and set the inner HTML to the value
     } else if (message.type == 'connected') {
         // Wait for the connected message before scheduling requests
-        setInterval(requestPlotData, 100);
+        setInterval(requestPlotData, plotPeriod);
         setInterval(requestTextData, 600);
     }
 }
