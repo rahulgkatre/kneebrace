@@ -33,9 +33,7 @@ body {
     background-color: #F8F7F9;
     ;
     box-shadow: 2px 2px 12px 1px rgba(140, 140, 140, .5);
-    padding-top: 10px;
-    padding-bottom: 20px;
-    padding-right: 40px;
+    padding: 40px;
 }
 
 .button {
@@ -67,8 +65,4 @@ body {
     font-size: 1.5rem;
     color: #8c8c8c;
     font-weight: bold;
-}
-
-.c3-axis .tick line {
-    display: none;
 }

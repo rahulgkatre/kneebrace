@@ -1,8 +1,10 @@
 var websocket;
 window.addEventListener('load', initWebSocket);
-let maxPointsDisplayed = 20;
+const maxPointsDisplayed = 30;
+const d = new Date();
+var data = {};
 var charts = {};
-var counts = {};
+const labels = [...Array(maxPointsDisplayed).keys()];
 
 function initWebSocket() {
     console.log('Trying to open a WebSocket connection...');
@@ -23,42 +25,51 @@ function onMessage(event) {
     if (message.type == 'plot') {
         // Plot the data in realtime
         for (let i = 0; i < message.series.length; i++) {
-            label = message.series[i].label;
+            var label = message.series[i].label;
             if (! (label in charts) ) {
-                const div = document.createElement("div");
-                div.id = label;
-                document.getElementById('charts').appendChild(div);
-                counts[label] = 1;
-                var columns = Object.entries(message.series[i].data);
-                charts[label] = c3.generate({
-                    bindto: document.getElementById(label),
+                const canvas = document.createElement("canvas");
+                canvas.id = label;
+                document.getElementById('charts').appendChild(canvas);
+                var datasets = [];
+                Object.entries(message.series[i].data).forEach(([k, v]) => {
+                    datasets.push({
+                        label: k,
+                        data: [v]
+                    });
+                });
+                
+                charts[label] = new Chart(canvas, {
+                    type: 'line',
                     data: {
-                        columns: columns
+                        labels: labels,
+                        datasets: datasets
                     },
-                    axis: {
-                        x: {
-                            tick: {
-                                format: function(x) { return ''; }
-                            }
-                        }
+                    options: {
+                        reponsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                            title: {
+                                display: true,
+                                text: label
+                            },
+                        },
                     }
                 });
-            } else {              
-                // TODO: Fix this
-                counts[label]++;
-                var length;
-                if (counts[label] > maxPointsDisplayed) {
-                    length = 1;
-                } else {
-                    length = 0;                    
+            } else {
+                for (let j = 0; j < charts[label].data.datasets.length; j++) {
+                    const key = charts[label].data.datasets[j].label;
+                    const dest = charts[label].data.datasets[j].data;
+                    dest.push(message.series[i].data[key]);
+                    if (dest.length > maxPointsDisplayed) {
+                        labels.push(labels[maxPointsDisplayed-1]+1);
+                        labels.shift();
+                        dest.shift();
+                    }
                 }
-
-                var columns = Object.entries(message.series[i].data);
-                charts[label].flow({
-                    columns: columns,
-                    duration: 0,
-                    length: length,
-                });
+                
+                charts[label].update();
             }  
         }
     } else if (message.type == 'text') {

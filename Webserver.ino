@@ -95,14 +95,8 @@ void webServerSetup()
     server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request)
               { request->send(LittleFS, "/script.js", "text/javascript"); });
 
-    server.on("/c3.min.css", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/c3.min.css", "text/css"); });
-
-    server.on("/c3.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/c3.min.js", "text/javascript"); });
-
-    server.on("/d3.v5.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/d3.v5.min.js"); });
+    server.on("/chart.umd.min.js", HTTP_GET, [](AsyncWebServerRequest *request)
+              { request->send(LittleFS, "/chart.umd.min.js", "text/javascript"); });
 
 
     // Start server
