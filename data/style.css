@@ -30,10 +30,17 @@ body {
 }
 
 .card {
-    background-color: #F8F7F9;
-    ;
+    background-color: white;
+    padding-right: 20px;
     box-shadow: 2px 2px 12px 1px rgba(140, 140, 140, .5);
+    margin: 20px;
 }
+
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-gap: 20px;
+  }
 
 .button {
     padding: 15px 50px;

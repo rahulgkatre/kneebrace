@@ -1,9 +1,18 @@
 var websocket;
 window.addEventListener('load', initWebSocket);
+
 const maxPointsDisplayed = 40;
-const plotFrequency = 100;
+const plotFrequency = 20;
 const plotPeriod = 1000 / plotFrequency;
 var charts = {};
+var csvRecording = false;
+document.getElementById('button').addEventListener('click', function() {
+   if (!csvRecording) {
+    startCSVRecording();
+   } else {
+    stopCSVRecording();
+   }
+});
 
 function initWebSocket() {
     console.log('Trying to open a WebSocket connection...');
@@ -28,6 +37,7 @@ function onMessage(event) {
             if (! (label in charts) ) {
                 const div = document.createElement("div");
                 div.id = label;
+                div.className = "card";
                 document.getElementById('charts').appendChild(div);
                 var series = [];
                 Object.entries(message.series[i].data).forEach(([k, v]) => {
@@ -49,8 +59,9 @@ function onMessage(event) {
                         }
                     },
                     xAxis: {
-                        type: 'datetime',
-                        dateTimeLabelFormats: { second: '%H:%M:%S'}
+                        labels: {
+                            enabled: false
+                        }
                     },
                     credits: { enabled: false }
                 });
@@ -71,6 +82,16 @@ function onMessage(event) {
         setInterval(requestPlotData, plotPeriod);
         setInterval(requestTextData, 600);
     }
+}
+function startCSVRecording() {
+    document.getElementById('button').innerText = 'Stop CSV Recording';
+    csvRecording = true;
+    websocket.send('startCSVRecord');
+}
+function stopCSVRecording() {
+    document.getElementById('button').innerText = 'Start CSV Recording';
+    csvRecording = false;
+    websocket.send('startCSVRecord');
 }
 function requestPlotData() {
     websocket.send('getNewPlotData');
