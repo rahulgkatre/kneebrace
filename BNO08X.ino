@@ -125,7 +125,7 @@ String getStepsJsonString() {
 }
 
 String getActivityJsonString() {
-    return "{\"label\":\"Activity Classification\",\"data\":{\"mostLikely\":" + String(activity.mostLikely) + "\"}}}";
+    return "{\"label\":\"Activity Classification\",\"data\":{\"mostLikely\":\"" + String(activity.mostLikely) + "\"}}";
 }
 
 void setReports(void) {
@@ -239,6 +239,7 @@ void bno08XLoop() {
     // delay(10);
     unsigned long curr = millis();
     if (curr - last >= UPDATE_RATE_MS - UPDATE_RATE_CORRECTION) {
+        /*
         Serial.print(curr - last);
         Serial.print("\t");
         Serial.print(ypr.yaw);
@@ -247,19 +248,20 @@ void bno08XLoop() {
         Serial.print("\t");
         Serial.println(magnitude(&accel, true));
         last = curr;
+        */
     }
     if (!mockBNO08X) {
         getSensorData();
     } else {
-        accel.x = random(-10, 10);
-        accel.y = random(-10, 10);
-        accel.z = random(-10, 10);
-        gyro.x = random(-10, 10);
-        gyro.y = random(-10, 10);
-        gyro.z = random(-10, 10);
-        ypr.yaw = random(-10, 10);
-        ypr.pitch = random(-10, 10);
-        ypr.roll = random(-10, 10);
+        accel.x = sq(sq(sin(curr)));
+        accel.y = sq(sq(sin(curr + PI / 4)));
+        accel.z = sq(sq(cos(curr)));
+        gyro.x = sq(sq(sin(curr)));
+        gyro.y = sq(sq(sin(curr + PI / 4)));
+        gyro.z = sq(sq(cos(curr)));
+        ypr.yaw = sq(sq(sin(curr)));
+        ypr.pitch = sq(sq(sin(curr + PI / 4)));
+        ypr.roll = sq(sq(cos(curr)));
         step_ctr.steps += 1;
         getMostLikelyActivity((uint8_t) random(PAC_UNKNOWN+1, PAC_ON_STAIRS+1));
     }

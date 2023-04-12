@@ -7,7 +7,8 @@ void getNewPlotData() {
     String accelJson = getAccelJsonString();
     String gyroJson = getGyroJsonString();
     String eulerJson = getEulerJsonString();
-    String message = "{\"type\":\"plot\",\"series\":[" + accelJson + "," + gyroJson + "," + eulerJson + "]}";
+    String flexJson = getFlexJsonString();
+    String message = "{\"type\":\"plot\",\"series\":[" + accelJson + "," + gyroJson + "," + eulerJson + "," + flexJson + "]}";
     ws.textAll(message);
 }
 
@@ -32,8 +33,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     }
 }
 
-void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
-             void *arg, uint8_t *data, size_t len) {
+void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
     switch (type) {
         case WS_EVT_CONNECT:
             Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
@@ -51,24 +51,15 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
     }
 }
 
-String processor(const String &var) {
-    Serial.println(var);
-    return String();
-}
-
 void webServerSetup() {
     ws.onEvent(onEvent);
     server.addHandler(&ws);
 
     // Route for root / web page
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/index.html", String(), false, processor); });
-
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/index.html", "text/html"); });
     server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/style.css", "text/css"); });
-
     server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/script.js", "text/javascript"); });
-
     server.on("/highcharts.js", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/highcharts.js", "text/javascript"); });
-
     server.on("/data.csv", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/data.csv", "text/csv"); });
 
     // Start server

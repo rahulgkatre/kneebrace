@@ -15,7 +15,7 @@
 // Includes for Filesystem.ino
 #include <FS.h>
 #include <LittleFS.h>
-
+#include <Arduino_JSON.h>
 
 // Includes for FlexSensor.ino
 #include <Adafruit_PCF8591.h>
@@ -23,29 +23,26 @@
 // Includes for GaitAnalysis.ino
 
 // Includes for Network.ino
+#include <ESPmDNS.h>
 #include <WiFi.h>
-
-// Includes for Webpage.ino
-// None at this time
 
 // Includes for Webserver.ino
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
 void setup() {
-    // Serial port for debugging purposes
     Serial.begin(115200);
     bno08XSetup();
-    if (!fileSystemSetup()) {
-        return;
-    }
     flexSensorSetup();
-    networkSetup();
-    webServerSetup();
+    if (fileSystemSetup()) {
+        networkSetup();
+        webServerSetup();
+    }
 }
 
 void loop() {
+    networkLoop();
     webServerLoop();
-    // bno08XLoop();
+    bno08XLoop();
     flexSensorLoop();
 }
