@@ -48,7 +48,7 @@ void networkSetup() {
 
 unsigned long networkCurrentMillis = millis();
 unsigned long networkPreviousMillis = millis();
-unsigned long networkInterval = 30000;
+unsigned long networkInterval = 10000;
 
 void networkLoop() {
     networkCurrentMillis = millis();

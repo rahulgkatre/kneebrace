@@ -109,7 +109,7 @@ String getAccelJsonString() {
 }
 
 String getGyroJsonString() {
-    return "{\"label\":\"Gyroscope\",\"data\":{\"px\":" + String(gyro.x) + ",\"py\":" + String(gyro.y) + ",\"pz\":" + String(gyro.z) + "}}";
+    return "{\"label\":\"Gyroscope\",\"data\":{\"px\":" + String(gyro.x) + ",\"py\":" + String(gyro.y) + ",\"pz\":" + String(gyro.z) + "},\"bounds\": {\"minimum\": -10, \"maximum\": 10}}";
 }
 
 String getEulerJsonString() {
@@ -222,7 +222,6 @@ void getSensorData() {
 unsigned long last = 0;
 
 void bno08XSetup() {
-    while (!Serial) delay(10);
     if (!bno08x.begin_I2C()) {
         Serial.println("Failed to find BNO08x chip, will mock instead");
     } else {

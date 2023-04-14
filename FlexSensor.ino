@@ -4,7 +4,11 @@ bool mockPCF8591 = true;
 int adc_val = 0;
 
 String getFlexJsonString() {
-    return "{\"label\":\"Flex Sensor\",\"data\":{\"ADC Value\":" + String(adc_val) + "}}";
+    return "{\"label\":\"Flex Sensor\",\"data\":{\"ADC Value\":" + String(adc_val) + "},\"bounds\":{\"minimum\": 0, \"maximum\": 255}}";
+}
+
+float int_to_volts(uint16_t dac_value, uint8_t bits, float logic_level) {
+  return (((float)dac_value / ((1 << bits) - 1)) * logic_level);
 }
 
 void flexSensorSetup() {
@@ -18,9 +22,8 @@ void flexSensorSetup() {
 
 void flexSensorLoop() {
   if (mockPCF8591) {
-    adc_val = 255 * sq(sq(sin(millis())));
+    adc_val = 5 * sq(sq(sin(millis())));
   } else {
     adc_val = pcf.analogRead(3);
   }
-  delay(50);
 }

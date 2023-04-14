@@ -4,18 +4,18 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 
 void getNewPlotData() {
-    String accelJson = getAccelJsonString();
+    // String accelJson = getAccelJsonString();
     String gyroJson = getGyroJsonString();
-    String eulerJson = getEulerJsonString();
+    // String eulerJson = getEulerJsonString();
     String flexJson = getFlexJsonString();
-    String message = "{\"type\":\"plot\",\"series\":[" + accelJson + "," + gyroJson + "," + eulerJson + "," + flexJson + "]}";
+    String message = "{\"type\":\"plot\",\"series\":[" + /*accelJson + "," +*/ gyroJson + "," + /*eulerJson + "," +*/ flexJson + "]}";
     ws.textAll(message);
 }
 
 void getNewTextData() {
     String stepsJson = getStepsJsonString();
-    String activityJson = getActivityJsonString();
-    String message = "{\"type\":\"text\",\"series\":[" + stepsJson + "," + activityJson + "]}";
+    // String activityJson = getActivityJsonString();
+    String message = "{\"type\":\"text\",\"series\":[" + stepsJson + /*"," + activityJson + */ "]}";
     ws.textAll(message);
 }
 
@@ -59,7 +59,7 @@ void webServerSetup() {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/index.html", "text/html"); });
     server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/style.css", "text/css"); });
     server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/script.js", "text/javascript"); });
-    server.on("/highcharts.js", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/highcharts.js", "text/javascript"); });
+    server.on("/canvasjs.min.js", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/canvasjs.min.js", "text/javascript"); });
     server.on("/data.csv", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/data.csv", "text/csv"); });
 
     // Start server
