@@ -5,6 +5,10 @@ const plotFrequency = 50;
 const plotPeriod = 1000 / plotFrequency;
 var cards = {};
 var csvRecording = false;
+
+var plotSetInterval;
+var textSetInterval;
+
 function initWebSocket() {
     console.log('Trying to open a WebSocket connection...');
     websocket = new WebSocket(`ws://${window.location.hostname}/ws`);
@@ -29,7 +33,7 @@ function onMessage(event) {
                 const div = document.createElement("div");
                 div.id = label;
                 div.className = "card";
-                document.getElementById('charts').appendChild(div);
+                document.getElementById('cards').appendChild(div);
                 cards[label] = {};
                 cards[label]['x'] = 0;
                 cards[label]['data'] = {};
@@ -48,8 +52,8 @@ function onMessage(event) {
                     interactivityEnabled: false,
                     animationEnabled: false,
                     legend: {
-                        horizontalAlign: "center", // "center" , "right"
-                        verticalAlign: "top",  // "top" , "bottom"
+                        horizontalAlign: "center",
+                        verticalAlign: "top",
                         fontSize: 15
                     },
                     axisX:{
@@ -91,15 +95,15 @@ function onMessage(event) {
                 const div = document.createElement("div");
                 div.id = label;
                 div.className = "card";
-                document.getElementById('charts').appendChild(div);
+                document.getElementById('cards').appendChild(div);
                 cards[label]["div"] = div;
             }
-            cards[label]["div"].innerHTML = "<div><h2>" + label + "<br/>" + message.series[i].data["steps"] + "</h2></div>";    
+            cards[label]["div"].innerHTML = "<div class=\"center\"><h3>" + label + "</h3><br/><h2>" + message.series[i].data["steps"] + "</h2></div>";    
         }    
     } else if (message.type == 'connected') {
         // Wait for the connected message before scheduling requests
-        setInterval(requestPlotData, plotPeriod);
-        setInterval(requestTextData, 600);
+        plotSetInterval = setInterval(requestPlotData, plotPeriod);
+        textSetInterval = setInterval(requestTextData, 600);
     }
 }
 function requestPlotData() {

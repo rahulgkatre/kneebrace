@@ -9,7 +9,7 @@ h1 {
 }
 
 h2 {
-    font-size: 1.5rem;
+    font-size: 2.7rem;
     font-weight: bold;
     color: #143642;
 }
@@ -36,8 +36,14 @@ body {
     width: 80%;
     position: relative;
     max-width: 600px;
+    
+}
+
+.center {
+    position: relative;
     text-align: center;
-    vertical-align: middle;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .button {
@@ -56,7 +62,10 @@ body {
     -ms-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    margin: 20px;
+    margin-top: 0px;
 }
+
 
 /*.button:hover {background-color: #0f8b8d}*/
 .button:active {

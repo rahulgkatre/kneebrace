@@ -22,7 +22,7 @@ void flexSensorSetup() {
 
 void flexSensorLoop() {
   if (mockPCF8591) {
-    adc_val = 5 * sq(sq(sin(millis())));
+    adc_val = 255 * sq(sq(sin(millis())));
   } else {
     adc_val = pcf.analogRead(3);
   }

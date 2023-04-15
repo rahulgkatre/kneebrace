@@ -252,16 +252,10 @@ void bno08XLoop() {
     if (!mockBNO08X) {
         getSensorData();
     } else {
-        accel.x = sq(sq(sin(curr)));
-        accel.y = sq(sq(sin(curr + PI / 4)));
-        accel.z = sq(sq(cos(curr)));
-        gyro.x = sq(sq(sin(curr)));
-        gyro.y = sq(sq(sin(curr + PI / 4)));
-        gyro.z = sq(sq(cos(curr)));
-        ypr.yaw = sq(sq(sin(curr)));
-        ypr.pitch = sq(sq(sin(curr + PI / 4)));
-        ypr.roll = sq(sq(cos(curr)));
-        step_ctr.steps += 1;
+        gyro.x = 10 * sin(curr);
+        gyro.y = 10 * sin(curr + PI / 4);
+        gyro.z = 10 * cos(curr);
+        step_ctr.steps += millis() / 800;
         getMostLikelyActivity((uint8_t) random(PAC_UNKNOWN+1, PAC_ON_STAIRS+1));
     }
     if (bno08x.wasReset()) {
