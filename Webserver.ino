@@ -27,8 +27,8 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
             getNewPlotData();
         } else if (strcmp((char *)data, "getNewTextData") == 0) {
             getNewTextData();
-        } else if (strcmp((char *)data, "recordCSVData") == 0) {
-            // recordCSVData();
+        } else if (strcmp((char *)data, "toggleHaptics") == 0) {
+            toggleHaptics();
         }
     }
 }
@@ -60,7 +60,6 @@ void webServerSetup() {
     server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/style.css", "text/css"); });
     server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/script.js", "text/javascript"); });
     server.on("/canvasjs.min.js", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/canvasjs.min.js", "text/javascript"); });
-    server.on("/data.csv", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(LittleFS, "/data.csv", "text/csv"); });
 
     // Start server
     server.begin();
