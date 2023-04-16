@@ -1,11 +1,12 @@
 var websocket;
-window.addEventListener('load', initWebSocket);
+window.addEventListener('load', onLoad);
 const maxPointsDisplayed = 30;
-const plotFrequency = 50;
-const plotPeriod = 1000 / plotFrequency;
+const freq = 50;
+const period = 1000 / freq;
 var cards = {};
 var csvRecording = false;
 
+var plotEnabled = true;
 var plotSetInterval;
 var textSetInterval;
 
@@ -16,6 +17,14 @@ function initWebSocket() {
     websocket.onclose = onClose;
     websocket.onmessage = onMessage;
 }
+
+function onLoad() {
+    initWebSocket();
+    document.getElementById('togglePlots').addEventListener('click', togglePlots);
+    document.getElementById('toggleHaptics').addEventListener('click', toggleHaptics);
+
+}
+
 function onOpen(event) {
     console.log('Connection opened');
 }
@@ -25,7 +34,7 @@ function onClose(event) {
 }
 function onMessage(event) {
     const message = JSON.parse(event.data);
-    if (message.type == 'plot') {
+    if (message.type == 'plot' && plotEnabled) {
         // Plot the data in realtime
         for (let i = 0; i < message.series.length; i++) {
             var label = message.series[i].label;
@@ -102,8 +111,8 @@ function onMessage(event) {
         }    
     } else if (message.type == 'connected') {
         // Wait for the connected message before scheduling requests
-        plotSetInterval = setInterval(requestPlotData, plotPeriod);
-        textSetInterval = setInterval(requestTextData, 600);
+        plotSetInterval = setInterval(requestPlotData, period);
+        textSetInterval = setInterval(requestTextData, period);
     }
 }
 function requestPlotData() {
@@ -111,4 +120,18 @@ function requestPlotData() {
 }
 function requestTextData() {
     websocket.send('getNewTextData');
+}
+function toggleHaptics() {
+    websocket.send('toggleHaptics');
+}
+function togglePlots() {
+    cards = {};
+    document.getElementById('cards').textContent = "";
+    if (plotEnabled) {
+        clearInterval(plotSetInterval);
+        plotEnabled = false;
+    } else {
+        plotSetInterval = setInterval(requestPlotData, period);
+        plotEnabled = true;
+    }
 }
