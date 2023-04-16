@@ -13,7 +13,7 @@ void networkSetup() {
     for (int i = 0; i < n; i++) {
         String ssid = WiFi.SSID(i);
         if (configJson["networks"].hasOwnProperty(ssid)) {
-            for (int j = 0; j < 3; j++ ) {
+            for (int j = 0; j < 10; j++ ) {
                 Serial.println("Connecting to " + ssid);
                 String password = configJson["networks"][ssid];
                 WiFi.begin(WiFi.SSID(i).c_str(), password.c_str());

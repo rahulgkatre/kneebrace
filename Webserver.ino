@@ -5,17 +5,18 @@ AsyncWebSocket ws("/ws");
 
 void getNewPlotData() {
     // String accelJson = getAccelJsonString();
-    String gyroJson = getGyroJsonString();
+    String gyroFilterJson = getGyroFilterJsonString();
     // String eulerJson = getEulerJsonString();
     String flexJson = getFlexJsonString();
-    String message = "{\"type\":\"plot\",\"series\":[" + /*accelJson + "," +*/ gyroJson + "," + /*eulerJson + "," +*/ flexJson + "]}";
+    String message = "{\"type\":\"plot\",\"series\":[" + /*accelJson + "," +*/ gyroFilterJson + "," + /*eulerJson + "," +*/ flexJson + "]}";
     ws.textAll(message);
 }
 
 void getNewTextData() {
     String stepsJson = getStepsJsonString();
     // String activityJson = getActivityJsonString();
-    String message = "{\"type\":\"text\",\"series\":[" + stepsJson + /*"," + activityJson + */ "]}";
+    String gaitJson = getGaitAnalysisJsonString();
+    String message = "{\"type\":\"text\",\"series\":[" + stepsJson + "," + gaitJson + /*"," + activityJson + */ "]}";
     ws.textAll(message);
 }
 

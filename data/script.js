@@ -107,7 +107,12 @@ function onMessage(event) {
                 document.getElementById('cards').appendChild(div);
                 cards[label]["div"] = div;
             }
-            cards[label]["div"].innerHTML = "<div class=\"center\"><h3>" + label + "</h3><br/><h2>" + message.series[i].data["steps"] + "</h2></div>";    
+            htmlStr = "<div class=\"center\"><h3>" + label + "</h3><br/>";
+            Object.entries(message.series[i].data).forEach(([k, v]) => {
+                htmlStr += "<h2>" + camel2title(k) + ": " + v + "</h2>";
+            });
+            htmlStr += "</div>";
+            cards[label]["div"].innerHTML = htmlStr;
         }    
     } else if (message.type == 'connected') {
         // Wait for the connected message before scheduling requests
@@ -135,3 +140,15 @@ function togglePlots() {
         plotEnabled = true;
     }
 }
+function camel2title(camelCase) {
+    // no side-effects
+    return camelCase
+      // inject space before the upper case letters
+      .replace(/([A-Z])/g, function(match) {
+         return " " + match;
+      })
+      // replace first char with upper case
+      .replace(/^./, function(match) {
+        return match.toUpperCase();
+      });
+  }
