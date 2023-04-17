@@ -21,8 +21,15 @@ function initWebSocket() {
 function onLoad() {
     initWebSocket();
     document.getElementById('togglePlots').addEventListener('click', togglePlots);
-    document.getElementById('toggleHaptics').addEventListener('click', toggleHaptics);
-
+    document.getElementById('hapticPulse').addEventListener('click', () => {
+        hapticButton('hapticPulse');
+    });
+    document.getElementById('hapticMedium').addEventListener('click', () => {
+        hapticButton('hapticMedium');
+    });
+    document.getElementById('hapticHigh').addEventListener('click', () => {
+        hapticButton('hapticHigh');
+    });
 }
 
 function onOpen(event) {
@@ -126,8 +133,8 @@ function requestPlotData() {
 function requestTextData() {
     websocket.send('getNewTextData');
 }
-function toggleHaptics() {
-    websocket.send('toggleHaptics');
+function hapticButton(message) {
+    websocket.send(message);
 }
 function togglePlots() {
     cards = {};
