@@ -8,9 +8,18 @@
 // If a function requires access to variables from other files, it must be further down in alphabetical ordering
 // For example, functions in Webserver.ino can access variables of BNO08X.ino and Webpage.ino, but not the other way around
 
+// 100 Hz standard update rate
+#define REPORT_RATE_US 10000
+// 10 Hz interpretation rate
+#define INTER_RATE_US  100000
+// 100 Hz YPR update rate (do we need this?)
+#define ARVR_ROTVEC_US 10000
+// 30 Hz serial output rate
+#define UPDATE_RATE_MS 33 
+#define UPDATE_RATE_CORRECTION 2
+
 // Inludes for BNO08X.ino
 #include <Adafruit_BNO08x.h>
-#include <cmath>
 
 // Includes for Filesystem.ino
 #include <FS.h>

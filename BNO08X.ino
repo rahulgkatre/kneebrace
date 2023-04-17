@@ -15,7 +15,6 @@
 
 // Print Out
 #define PRINT true
-#define PRINT_PCF false
 
 // No Reset
 #define BNO08X_RESET -1
@@ -27,15 +26,7 @@
 #define PEAK_DEADZONE_Y 1.5 // Peak Deadzone for gyro
 #define DELTA_ALIVEZONE 0.6 // Peak Deadzone for gyro
 #define PEAK_SLEEP 20 // Peak Deadzone for gyro
-// 100 Hz standard update rate
-#define REPORT_RATE_US 10000
-// 10 Hz interpretation rate
-#define INTER_RATE_US  100000
-// 100 Hz YPR update rate (do we need this?)
-#define ARVR_ROTVEC_US 10000
-// 30 Hz serial output rate
-#define UPDATE_RATE_MS 33 
-#define UPDATE_RATE_CORRECTION 2
+
 
 /* ======================================================================================================================== */
 /* ======================================================================================================================== */
@@ -121,49 +112,6 @@ struct steps_t {
   }
 };
 
-struct activity_t
-{
-  uint8_t most_likely;
-  void set(uint8_t ml) {
-    most_likely = ml;
-    return;
-  }
-  String getMostLikelyActivity() {
-  switch (most_likely) {
-    case PAC_UNKNOWN:
-      return "Unknown";
-      break;
-    case PAC_IN_VEHICLE:
-      return "In Vehicle";
-      break;
-    case PAC_ON_BICYCLE:
-      return "On Bicycle";
-      break;
-    case PAC_ON_FOOT:
-      return "On Foot";
-      break;
-    case PAC_STILL:
-      return "Still";
-      break;
-    case PAC_TILTING:
-      return "Tilting";
-      break;
-    case PAC_WALKING:
-      return "Walking";
-      break;
-    case PAC_RUNNING:
-      return "Running";
-      break;
-    case PAC_ON_STAIRS:
-      return "On Stairs";
-      break;
-    default:
-      return "NOT LISTED";
-    } 
-    return "None";
-  }
-};
-
 float magnitude(xyz_t* input, bool sqrt = false) {
   float sum = input->x * input->x + input->y * input->y + input->z * input->z;
   if (sqrt) {
@@ -232,6 +180,8 @@ private:
 
   xyz_t prev_var;
   xyz_t var; 
+
+  int steps = 0;
 public:
   window_filter_xyz() : num_readings(0), sum(xyz_t()), avg(xyz_t()), prev_avg(xyz_t()), prev_var(xyz_t()), var(xyz_t()) {
     for (int i = 0; i < WINDOW_SIZE; i++) {
@@ -305,6 +255,9 @@ public:
     float difference = avg.y - (prev_avg.y);
     if (hit_peak_y && natural_gait(avg.y, delta.y) && std::abs(difference) > THRESHOLD * std::sqrt(prev_var.y)) {
       if (difference > 0) {
+        if (last_pos < last_neg) {
+          steps += 1;
+        }
         stance_percent = (float)(last_neg - last_pos) / (float)(num_readings - last_pos);
         neg_peak_ratio = std::max(0.0f, std::min(1.0f, second_last_neg_value / last_neg_value));
         last_pos = num_readings;
@@ -329,8 +282,10 @@ public:
   float get_peak_ratio() {
     return neg_peak_ratio;
   }
+  int get_steps() {
+    return steps;
+  }
 };
-
 
 /* ======================================================================================================================== */
 /* ======================================================================================================================== */
@@ -345,7 +300,6 @@ xyz_t gyro;
 euler_t ypr;
 quaternion_t rot_vec;
 steps_t step_ctr;
-activity_t activity;
 
 window_filter_xyz accel_filter;
 window_filter_xyz gyro_filter;
@@ -376,10 +330,6 @@ String getStepsJsonString() {
     return "{\"label\":\"Step Counter\",\"data\":{\"steps\":" + String(step_ctr.steps) + ",\"latency\":" + String(step_ctr.latency) + "}}";
 }
 
-String getActivityJsonString() {
-    return "{\"label\":\"Activity Classification\",\"data\":{\"mostLikely\":\"" + String(activity.most_likely) + "\"}}";
-}
-
 String getGyroFilterJsonString() {
     return "{\"label\":\"Gyroscope Filtered\",\"data\":{\"y\":" + String(gyro_filter.get_avg()->y) + "},\"bounds\": {\"minimum\": -10, \"maximum\": 10}}";
 }
@@ -398,9 +348,6 @@ void setReports(void) {
   }
   if (!bno08x.enableReport(SH2_STEP_COUNTER, INTER_RATE_US)) {
     Serial.println("Could not enable step counter");
-  }
-  if (!bno08x.enableReport(SH2_PERSONAL_ACTIVITY_CLASSIFIER, INTER_RATE_US)) {
-    Serial.println("Could not enable personal activity classifier");
   }
   if (!bno08x.enableReport(SH2_ARVR_STABILIZED_RV, ARVR_ROTVEC_US)) {
     Serial.println("Could not enable stabilized remote vector");
@@ -427,9 +374,6 @@ void getSensorData() {
       case SH2_ARVR_STABILIZED_RV:
         quaternionToEulerRV(&sensorValue.un.arvrStabilizedRV, &ypr);
         break;
-      case SH2_PERSONAL_ACTIVITY_CLASSIFIER:
-        activity.set(sensorValue.un.personalActivityClassifier.mostLikelyState);
-        break;
     }
   }
 }
@@ -439,7 +383,7 @@ unsigned long last = 0;
 void bno08XSetup() {
     if (!bno08x.begin_I2C()) {
         Serial.println("Failed to find BNO08x chip, will mock instead");
-        while (1) { delay(10); }
+//        while (1) { delay(10); }
     } else {
         mockBNO08X = false;
         Serial.println("BNO08x Found!");
@@ -454,20 +398,27 @@ void bno08XLoop() {
     // delay(10);
     unsigned long curr = millis();
     if (curr - last >= UPDATE_RATE_MS - UPDATE_RATE_CORRECTION) {
-        /*
-        Serial.print(curr - last);
-        Serial.print("\t");
-        Serial.print(ypr.yaw);
-        Serial.print("\t");
-        Serial.print(gyro.y);  // Rotational acceleration on y-axis
-        Serial.print("\t");
-        Serial.println(magnitude(&accel, true));
-        last = curr;
-        */
+        gyro_filter.peak_detection_y();
+//        Serial.print("\t"); Serial.print(curr - last_reading);
+//        Serial.print("\t"); Serial.print(gyro_update - gyro_prev);
+//        Serial.print("\t"); Serial.print(ypr.yaw);
+//        Serial.print("\t"); Serial.print(gyro_filter.get_avg()->y); // Rotational acceleration on y-axis
+//        Serial.print("\t"); Serial.print(gyro_filter.get_prev_std_y() * THRESHOLD); // Rotational acceleration on y-axis
+//        Serial.print("\t"); Serial.print(-1 * (gyro_filter.get_prev_std_y() * THRESHOLD)); // Rotational acceleration on y-axis
+//        Serial.print("\t"); Serial.print(gyro_filter.peak_detection_y() * 5); // Rotational acceleration on y-axis
+//        Serial.print("\t"); Serial.print(gyro_filter.get_stance_percent());
+//        Serial.print("\t"); Serial.print(gyro_filter.get_peak_ratio()); //too noisy, too sporadic...
+//        Serial.print("\t"); Serial.print(magnitude(accel_filter.get_avg(), true));
+//        Serial.print("\t"); Serial.print(gyro_filter.get_steps());
+//        Serial.print("\t"); Serial.print(get_flex_reading());
+//        Serial.print("\t"); Serial.print(flex_filter.get_var());
+//        
+//        Serial.print("\t"); Serial.print(activity.getMostLikelyActivity());
+//        Serial.print("\t"); Serial.print(gyro_filter.get_delta()->y);
+//        Serial.println();
     }
     if (!mockBNO08X) {
         getSensorData();
-        gyro_filter.peak_detection_y();
     } else {
         gyro.x = 10 * sin(curr);
         gyro.y = 10 * sin(curr + PI / 4);
