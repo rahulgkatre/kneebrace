@@ -16,7 +16,8 @@ void getNewTextData() {
     String stepsJson = getStepsJsonString();
     // String activityJson = getActivityJsonString();
     String gaitJson = getGaitAnalysisJsonString();
-    String message = "{\"type\":\"text\",\"series\":[" + stepsJson + "," + gaitJson + /*"," + activityJson + */ "]}";
+    String limpJson = getLimpClassificationText();
+    String message = "{\"type\":\"text\",\"series\":[" + stepsJson + "," + gaitJson + "," + limpJson + "]}";
     ws.textAll(message);
 }
 
@@ -28,8 +29,12 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
             getNewPlotData();
         } else if (strcmp((char *)data, "getNewTextData") == 0) {
             getNewTextData();
-        } else if (strcmp((char *)data, "toggleHaptics") == 0) {
-            toggleHaptics();
+        } else if (strcmp((char *)data, "hapticOff") == 0) {
+            hapOff();
+        } else if (strcmp((char *)data, "hapticMedium") == 0) {
+            hapMedium();
+        } else if (strcmp((char *)data, "hapticHigh") == 0) {
+            hapHigh();
         }
     }
 }
@@ -64,6 +69,7 @@ void webServerSetup() {
 
     // Start server
     server.begin();
+    Serial.println("Starting webserver");
 }
 
 void webServerLoop() {

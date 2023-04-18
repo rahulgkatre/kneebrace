@@ -3,7 +3,8 @@
 #define ADC_REFERENCE_VOLTAGE 5.0
 Adafruit_PCF8591 pcf = Adafruit_PCF8591();
 
-#define WINDOW_SIZE_FLEX 100
+#define WINDOW_SIZE_FLEX 400
+#define LIMP_VAR_THRESH 0.14
 
 class window_filter {
 private:
@@ -57,6 +58,9 @@ public:
   }
   float get_var() {
     return var;
+  }
+  boolean limp_classification() {
+    return var < LIMP_VAR_THRESH;
   }
 };
 

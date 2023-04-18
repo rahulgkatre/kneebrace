@@ -1,7 +1,7 @@
 var websocket;
 window.addEventListener('load', onLoad);
 const maxPointsDisplayed = 30;
-const freq = 50;
+const freq = 10;
 const period = 1000 / freq;
 var cards = {};
 var csvRecording = false;
@@ -21,8 +21,8 @@ function initWebSocket() {
 function onLoad() {
     initWebSocket();
     document.getElementById('togglePlots').addEventListener('click', togglePlots);
-    document.getElementById('hapticPulse').addEventListener('click', () => {
-        hapticButton('hapticPulse');
+    document.getElementById('hapticOff').addEventListener('click', () => {
+        hapticButton('hapticOff');
     });
     document.getElementById('hapticMedium').addEventListener('click', () => {
         hapticButton('hapticMedium');
@@ -40,6 +40,7 @@ function onClose(event) {
     setTimeout(initWebSocket, 2000);
 }
 function onMessage(event) {
+	//console.log(event.data);
     const message = JSON.parse(event.data);
     if (message.type == 'plot' && plotEnabled) {
         // Plot the data in realtime
@@ -114,7 +115,7 @@ function onMessage(event) {
                 document.getElementById('cards').appendChild(div);
                 cards[label]["div"] = div;
             }
-            htmlStr = "<div class=\"center\"><h3>" + label + "</h3><br/>";
+            htmlStr = "<div class=\"center\">";
             Object.entries(message.series[i].data).forEach(([k, v]) => {
                 htmlStr += "<h2>" + camel2title(k) + ": " + v + "</h2>";
             });

@@ -6,10 +6,10 @@ String readFile(fs::FS &fs, const char* path) {
 
     File file = fs.open(path);
     if(!file || file.isDirectory()){
-        Serial.println("- failed to open file for reading");
+        Serial.println("Error: failed to open file for reading");
     }
 
-    Serial.println("- read from file:");
+    Serial.println("Able to read file");
     while(file.available()){
         //Serial.write(file.read());
         char intRead = file.read();
@@ -49,7 +49,12 @@ bool fileSystemSetup() {
     if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED)) {
         Serial.println("LittleFS Mount Failed");
         return false;
+    } else {
+        Serial.println("LittleFS Mount Success!");
+        // readFile(LittleFS, "/index.html".c_str());
     }
+
+    
 
     return true;
 }

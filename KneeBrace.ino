@@ -14,6 +14,8 @@
 #define INTER_RATE_US  100000
 // 100 Hz YPR update rate (do we need this?)
 #define ARVR_ROTVEC_US 10000
+// 3 Hz Haptics
+#define HAPTIC_RATE_MS 333
 // 30 Hz serial output rate
 #define UPDATE_RATE_MS 33 
 #define UPDATE_RATE_CORRECTION 2
@@ -44,6 +46,7 @@ void setup() {
     delay(1000);
     bno08XSetup();
     flexSensorSetup();
+    hapticSetup();
     if (fileSystemSetup()) {
         networkSetup();
         webServerSetup();
@@ -53,6 +56,7 @@ void setup() {
 void loop() {
     networkLoop();
     webServerLoop();
+    hapticLoop();
     bno08XLoop();
     flexSensorLoop();
 }

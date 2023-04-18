@@ -173,6 +173,7 @@ private:
   int last_peak = 0;
   int last_pos = 0;
   int last_neg = 0;
+  int second_last_neg = 0;
   float stance_percent = 0;
   float second_last_neg_value = 0;
   float last_neg_value = 0;
@@ -255,10 +256,10 @@ public:
     float difference = avg.y - (prev_avg.y);
     if (hit_peak_y && natural_gait(avg.y, delta.y) && std::abs(difference) > THRESHOLD * std::sqrt(prev_var.y)) {
       if (difference > 0) {
-        if (last_pos < last_neg) {
-          steps += 1;
+        if (last_pos < last_neg && last_pos < second_last_neg) { // WALKING FULL GAIT
+          steps += 2;
         }
-        stance_percent = (float)(last_neg - last_pos) / (float)(num_readings - last_pos);
+        stance_percent = std::max(0.0f, std::min(1.0f, (float)(last_neg - last_pos) / (float)(num_readings - last_pos)));
         neg_peak_ratio = std::max(0.0f, std::min(1.0f, second_last_neg_value / last_neg_value));
         last_pos = num_readings;
         hit_peak_y = 0;
@@ -266,6 +267,7 @@ public:
       } else {
         second_last_neg_value = last_neg_value;
         last_neg_value = avg.y;
+        second_last_neg = last_neg;
         last_neg = num_readings;
         hit_peak_y = 0;
         return -1;
@@ -327,7 +329,7 @@ String getQuaternionJsonString() {
 }
 
 String getStepsJsonString() {
-    return "{\"label\":\"Step Counter\",\"data\":{\"steps\":" + String(step_ctr.steps) + ",\"latency\":" + String(step_ctr.latency) + "}}";
+    return "{\"label\":\"Step Counter\",\"data\":{\"steps\":" + String(gyro_filter.get_steps()) + "}}";
 }
 
 String getGyroFilterJsonString() {
@@ -336,6 +338,20 @@ String getGyroFilterJsonString() {
 
 String getGaitAnalysisJsonString() {
     return "{\"label\":\"Gait Analysis\",\"data\":{\"stancePercent\": " +  String(gyro_filter.get_stance_percent()) + ",\"peakRatio\": " + String(gyro_filter.get_peak_ratio()) + "}}";
+}
+
+String limpClass() {
+  if (std::abs(gyro_filter.get_avg()->y) < 0.4 || flex_filter.get_var() < 0.005) {
+    return String("\"Start moving to get your limp classification!\"");
+  } else if (flex_filter.limp_classification()) {
+    return String("\"WARNING: You are limping. Correct your gait!\"");
+  } else {
+    return String("\"Normal gait patterns!!\"");
+  }
+}
+ 
+String getLimpClassificationText() {
+  return "{\"label\":\"Limp Gait Classification\",\"data\":{\"Limp Gait Classification\":" + limpClass() + "}}";
 }
 
 void setReports(void) {
